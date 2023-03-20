@@ -8,55 +8,58 @@ std::string ConverterTo(int num)
 {
     std::string result;
 
-    if (num >= 1000)
+    std::pair<std::pair<std::string, int>, std::pair<std::string, int>> categories[4];
+    categories[0].first = std::make_pair("M", 1000);
+    categories[0].second = std::make_pair("M", 1000);
+    categories[1].first = std::make_pair("C", 100);
+    categories[1].second = std::make_pair("D", 500);
+    categories[2].first = std::make_pair("X", 10);
+    categories[2].second = std::make_pair("L", 50);
+    categories[3].first = std::make_pair("I", 1);
+    categories[3].second = std::make_pair("V", 5);
+
+    int num_categories[4];
+    for (int i = 0, j = 0; i < 4; i++)
     {
-        int MCount = num / 1000;
-        for (int i = 0; i < MCount; i++)
-        {
-            result += "M";
-        }
-        num %= 1000;
+        num_categories[i] = num - num % (int)pow(10, 3 - i) - j;
+        j += num_categories[i];
     }
 
-    std::string letters[] = { "D", "C", "L", "X", "V", "I" };
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
     {
-        int n = num % (int)(500 / pow(10, i));
-
-        if (n == num)
+        if (i != 0)
         {
-            if (400 / pow(10, i) < n)
+            if (num_categories[i] == categories[i - 1].first.second - categories[i].first.second)
             {
-                result += letters[i * 2 + 1] + letters[i * 2];
+                result += categories[i].first.first + categories[i - 1].first.first;
+                continue;
             }
-            else if (400 / pow(10, i) > n && n >= 100 / pow(10, i))
+            else if (num_categories[i] > categories[i].second.second)
             {
-                int k = n / (100 / pow(10, i));
+                int k = num_categories[i] / categories[i].first.second - 5;
+                result += categories[i].second.first;
                 for (int j = 0; j < k; j++)
                 {
-                    result += letters[i * 2 + 1];
+                    result += categories[i].first.first;
                 }
+                continue;
             }
-        }
-        else if (400 / pow(10, i) > n && n >= 100 / pow(10, i))
-        {
-            int k = n / (100 / pow(10, i));
-            result += letters[i * 2];
-            for (int j = 0; j < k; j++)
+            else if (num_categories[i] == categories[i].second.second)
             {
-                result += letters[i * 2 + 1];
+                result += categories[i].second.first;
+                continue;
+            }
+            else if (num_categories[i] == categories[i].second.second - categories[i].first.second)
+            {
+                result += categories[i].first.first + categories[i].second.first;
+                continue;
             }
         }
-        else if (400 / pow(10, i) < n)
+        int k = num_categories[i] / categories[i].first.second;
+        for (int j = 0; j < k; j++)
         {
-            result += letters[i * 2 + 1];
+            result += categories[i].first.first;
         }
-        else if (n < 100 / pow(10, i))
-        {
-            result += letters[i * 2];
-        }
-
-        num %= (int)(100 / pow(10, i));
     }
 
     return result;
